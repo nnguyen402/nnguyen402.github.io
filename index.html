@@ -41,13 +41,13 @@
 
       navigator.clipboard.writeText(textToCopy).then(() => {
         const alertSpan = document.getElementById("copy-alert");
-        alertSpan.innerText = "(Copied to clipboard!)";
+        alertSpan.innerText = "(Copied to clipboard! Go paste into your local terminal!)";
         alertSpan.style.color = "#47D69D";
         
         setTimeout(() => {
           alertSpan.innerText = "(Click to copy)";
           alertSpan.style.color = "#FF8DA1";
-        }, 2000);
+        }, 3500);
       }).catch(err => {
         console.error('Failed to copy: ', err);
       });
