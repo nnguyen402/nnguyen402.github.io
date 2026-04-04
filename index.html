@@ -148,7 +148,6 @@
 
           const fitAddon = new window.FitAddon.FitAddon();
           term.loadAddon(fitAddon);
-
           term.open(document.getElementById("terminal-container"));
           fitAddon.fit();
 
@@ -163,6 +162,13 @@
 
           socket.onopen = () => {
             term.write("\x1b[1;32mConnection established.\x1b[0m\r\n\r\n");
+            socket.send(
+              JSON.stringify({
+                type: "resize",
+                cols: term.cols,
+                rows: term.rows,
+              }),
+            );
           };
 
           socket.onclose = () => {
@@ -179,6 +185,15 @@
 
           window.addEventListener("resize", () => {
             fitAddon.fit();
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(
+                JSON.stringify({
+                  type: "resize",
+                  cols: term.cols,
+                  rows: term.rows,
+                }),
+              );
+            }
           });
         }
       }
