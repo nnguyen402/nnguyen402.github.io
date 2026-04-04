@@ -1,58 +1,187 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nathan Nguyen | Terminal Portfolio</title>
-  <style>
-    body {
-      background-color: #0d0d0d;
-      color: #ffffff;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nathan Nguyen | Terminal Portfolio</title>
 
-  <div class="terminal-box" onclick="copySSH()" style="background: #1e1e1e; color: #47D69D; padding: 15px; border-radius: 5px; font-family: monospace; cursor: pointer; width: 300px; text-align: center; border: 1px solid #38AB7D; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-    <span id="ssh-text">ssh nathan-nguyen.fly.dev</span>
-    <br>
-    <span id="copy-alert" style="color: #FF8DA1; font-size: 12px; opacity: 0.8;">(Click to copy)</span>
-  </div>
+    <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+    <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+    <script src="https://unpkg.com/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="https://unpkg.com/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
 
-  <div style="margin-top: 40px; text-align: center;">
-    <p style="color: #CF8DA1; font-family: monospace; margin-bottom: 10px;">Preview (any terminal compatible):</p>
-    <img 
-      src="democonnect.gif" 
-      alt="Interactive Terminal Portfolio Preview" 
-      style="max-width: 90vw; width: 600px; border-radius: 8px; border: 1px solid #38AB7D; box-shadow: 0 0 15px rgba(71, 214, 157, 0.2);"
+    <style>
+      body {
+        background-color: #0d0d0d;
+        color: #ffffff;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .launch-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid #cf8da1;
+        color: #cf8da1;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+      .launch-btn:hover {
+        background: #cf8da1;
+        color: #0d0d0d;
+        box-shadow: 0 0 10px rgba(207, 141, 161, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="terminal-box"
+      onclick="copySSH()"
+      style="
+        background: #1e1e1e;
+        color: #47d69d;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        cursor: pointer;
+        width: 300px;
+        text-align: center;
+        border: 1px solid #38ab7d;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      "
     >
-  </div>
+      <span id="ssh-text">ssh nathan-nguyen.fly.dev</span>
+      <br />
+      <span
+        id="copy-alert"
+        style="color: #ff8da1; font-size: 12px; opacity: 0.8"
+        >(Click to copy)</span
+      >
+    </div>
 
-  <script>
-    function copySSH() {
-      const textToCopy = "ssh nathan-nguyen.fly.dev";
+    <button class="launch-btn" onclick="launchWebTerminal()" id="launch-btn">
+      > Or view in browser
+    </button>
 
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        const alertSpan = document.getElementById("copy-alert");
-        alertSpan.innerText = "(Copied to clipboard! Go paste into your local terminal!)";
-        alertSpan.style.color = "#47D69D";
-        
-        setTimeout(() => {
-          alertSpan.innerText = "(Click to copy)";
-          alertSpan.style.color = "#FF8DA1";
-        }, 3500);
-      }).catch(err => {
-        console.error('Failed to copy: ', err);
-      });
-    }
-  </script>
+    <div id="preview-section" style="margin-top: 40px; text-align: center">
+      <p style="color: #cf8da1; font-family: monospace; margin-bottom: 10px">
+        Preview:
+      </p>
+      <img
+        src="democonnect.gif"
+        alt="Interactive Terminal Portfolio Preview"
+        style="
+          max-width: 90vw;
+          width: 600px;
+          border-radius: 8px;
+          border: 1px solid #38ab7d;
+          box-shadow: 0 0 15px rgba(71, 214, 157, 0.2);
+        "
+      />
+    </div>
 
-</body>
+    <div
+      id="web-terminal-section"
+      style="
+        display: none;
+        margin-top: 30px;
+        width: 90vw;
+        max-width: 800px;
+        height: 450px;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #47d69d;
+        box-shadow: 0 0 20px rgba(71, 214, 157, 0.15);
+        text-align: left;
+      "
+    >
+      <div id="terminal-container" style="width: 100%; height: 100%"></div>
+    </div>
+
+    <script>
+      function copySSH() {
+        const textToCopy = "ssh nathan-nguyen.fly.dev";
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            const alertSpan = document.getElementById("copy-alert");
+            alertSpan.innerText =
+              "(Copied to clipboard! Go paste into your local terminal!)";
+            alertSpan.style.color = "#47D69D";
+
+            setTimeout(() => {
+              alertSpan.innerText = "(Click to copy)";
+              alertSpan.style.color = "#FF8DA1";
+            }, 3500);
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err);
+          });
+      }
+
+      let term;
+      let socket;
+
+      function launchWebTerminal() {
+        document.getElementById("preview-section").style.display = "none";
+        document.getElementById("launch-btn").style.display = "none";
+        document.getElementById("web-terminal-section").style.display = "block";
+
+        if (!term) {
+          term = new window.Terminal({
+            cursorBlink: true,
+            theme: { background: "#000000", foreground: "#ffffff" },
+            fontFamily: "monospace",
+            fontSize: 14,
+          });
+
+          const fitAddon = new window.FitAddon.FitAddon();
+          term.loadAddon(fitAddon);
+
+          term.open(document.getElementById("terminal-container"));
+          fitAddon.fit();
+
+          term.write(
+            "\x1b[1;36mInitializing secure WebSocket connection...\x1b[0m\r\n",
+          );
+
+          socket = new WebSocket("wss://nathan-nguyen.fly.dev/term");
+
+          const attachAddon = new window.AttachAddon.AttachAddon(socket);
+          term.loadAddon(attachAddon);
+
+          socket.onopen = () => {
+            term.write("\x1b[1;32mConnection established.\x1b[0m\r\n\r\n");
+          };
+
+          socket.onclose = () => {
+            term.write(
+              "\r\n\x1b[1;31mConnection closed by remote host.\x1b[0m\r\n",
+            );
+          };
+
+          socket.onerror = (err) => {
+            term.write(
+              "\r\n\x1b[1;31mERROR: Backend WebSocket server is not responding.\x1b[0m\r\n",
+            );
+          };
+
+          window.addEventListener("resize", () => {
+            fitAddon.fit();
+          });
+        }
+      }
+    </script>
+  </body>
 </html>
